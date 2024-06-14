@@ -1,0 +1,6 @@
+Princípo dos Apps
+
+- npx create-expo-app@2.3.1;
+- colocar o nome da pasta;
+- npx expo install react-native-web react-dom @expo/metro-runtime
+  (se não tiver acesso à web)
