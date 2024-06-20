@@ -11,14 +11,22 @@ const KEY_GPT = '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';
 
 export default function App() {
 
-  const [city, setCity] = useState("");
-  const [days, setDays] = useState(3);
+  const [genero, setGenero] = useState("");
+  const [idade, setIdade] = useState("");
+  const [qtd, setQtd] = useState(3);
   const [loading, setLoading] = useState(false);
   const [travel, setTravel] = useState("")
 
+  // Função para lidar com a mudança na entrada de idade
+  const handleIdadeChange = (text) => {
+    // Permite apenas números e remove caracteres não numéricos
+    const newIdade = text.replace(/[^0-9]/g, ''); 
+    setIdade(newIdade);
+  };
+
   async function handleGenerate() {
-    if (city === "") {
-      Alert.alert("Atenção", "Preencha o nome da cidade!")
+    if (genero === "") {
+      Alert.alert("Atenção", "Preencha o gênero de mangá!")
       return;
     }
 
@@ -26,7 +34,7 @@ export default function App() {
     setLoading(true);
     Keyboard.dismiss();
 
-    const prompt = `Crie um roteiro para uma viagem de exatos ${days.toFixed(0)} dias na cidade de ${city}, busque por lugares turisticos, lugares mais visitados, seja preciso nos dias de estadia fornecidos e limite o roteiro apenas na cidade fornecida. Forneça apenas em tópicos com nome do local onde ir em cada dia.`
+    const prompt = `Crie uma lista com exatos ${qtd.toFixed(0)} mangás japoneses com gênero de ${genero} com a classificação indicativa exata de ${idade} anos, coloque a quantidade de volumes que cada mangá possui, e um resumo sobre o enredo da obra.`
 
     fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -64,44 +72,55 @@ export default function App() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" translucent={true} backgroundColor="#F1F1F1" />
-      <Text style={styles.heading}>Viaja AI</Text>
+      <Text style={styles.heading}>Recomendo Mangá</Text>
 
       <View style={styles.form}>
-        <Text style={styles.label}>Cidade destino</Text>
+        <Text style={styles.label}>Gênero</Text>
         <TextInput
-          placeholder="Ex: Suzano, SP"
+          placeholder="Ex: ação"
+          placeholderTextColor='#909090'
           style={styles.input}
-          value={city}
-          onChangeText={(text) => setCity(text)}
+          value={genero}
+          onChangeText={(text) => setGenero(text)}
         />
 
-        <Text style={styles.label}>Tempo de estadia: <Text style={styles.days}> {days.toFixed(0)} </Text> dias</Text>
+        <Text style={styles.label}>Faixa etária</Text>
+        <TextInput 
+          placeholder='Ex: 16'
+          placeholderTextColor="#909090"
+          style={styles.input}
+          value={idade}
+          onChangeText={handleIdadeChange} // Adiciona a função para lidar com a mudança
+          keyboardType="numeric" // Define o teclado numérico
+        />
+
+        <Text style={styles.label}>Quantidade de opções: <Text style={styles.qtd}> {qtd.toFixed(0)} </Text> mangás</Text>
         <Slider
           minimumValue={1}
-          maximumValue={7}
+          maximumValue={10}
           minimumTrackTintColor="#009688"
           maximumTrackTintColor="#000000"
-          value={days}
-          onValueChange={(value) => setDays(value)}
+          value={qtd}
+          onValueChange={(value) => setQtd(value)}
         />
       </View>
 
       <Pressable style={styles.button} onPress={handleGenerate}>
-        <Text style={styles.buttonText}>Gerar roteiro</Text>
-        <MaterialIcons name="travel-explore" size={24} color="#FFF" />
+        <Text style={styles.buttonText}>Gerar recomendação</Text>
+        <MaterialIcons name="menu-book" size={24} color="#FFF" />
       </Pressable>
 
       <ScrollView contentContainerStyle={{ paddingBottom: 24, marginTop: 4, }} style={styles.containerScroll} showsVerticalScrollIndicator={false} >
         {loading && (
           <View style={styles.content}>
-            <Text style={styles.title}>Carregando roteiro...</Text>
+            <Text style={styles.title}>Carregando opções...</Text>
             <ActivityIndicator color="#000" size="large" />
           </View>
         )}
 
         {travel && (
           <View style={styles.content}>
-            <Text style={styles.title}>Roteiro da viagem 👇</Text>
+            <Text style={styles.title}>Recomendação 👇</Text>
             <Text style={{ lineHeight: 24, }}>{travel}</Text>
           </View>
         )}
@@ -144,7 +163,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 16,
   },
-  days: {
+  qtd: {
     backgroundColor: '#F1f1f1'
   },
   button: {
